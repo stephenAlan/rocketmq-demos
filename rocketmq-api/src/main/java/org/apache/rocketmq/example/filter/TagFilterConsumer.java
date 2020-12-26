@@ -26,12 +26,15 @@ import org.apache.rocketmq.common.message.MessageExt;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * 根据Tag过滤消息，可以指定多个Tag
+ */
 public class TagFilterConsumer {
 
     public static void main(String[] args) throws InterruptedException, MQClientException, IOException {
 
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name");
-
+        consumer.setNamesrvAddr("localhost:9876");
         consumer.subscribe("TagFilterTest", "TagA || TagC");
 
         consumer.registerMessageListener(new MessageListenerConcurrently() {
