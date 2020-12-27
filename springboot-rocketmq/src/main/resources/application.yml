@@ -1,0 +1,7 @@
+sever:
+  port: 8001
+
+rocketmq:
+  name-server: localhost:9876
+  producer:
+    group: springboot-group
