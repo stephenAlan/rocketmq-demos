@@ -5,6 +5,7 @@ import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.apache.rocketmq.spring.support.RocketMQHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,7 @@ public class Producer {
         }
     };
 
+    // 普通消息
     public void send(String topic,String tag,String msg) {
         this.rocketMQTemplate.asyncSend(
                 String.format("%s:%s",topic,tag),
@@ -44,10 +46,20 @@ public class Producer {
                 sendCallback);
     }
 
-    public TransactionSendResult sendTransaction(String topic,String msg,String tag) {
+    // 延时消息
+    public void sendDelay(String topic,String tag,String msg,int delayLevel) {
+        this.rocketMQTemplate.asyncSend(
+                String.format("%s:%s",topic,tag),
+                MessageBuilder.withPayload(msg).build(),
+                sendCallback,2000,delayLevel);
+    }
+
+    // 事务消息
+    public TransactionSendResult sendTransaction(String topic,String tag,String msg,Object obj) {
         log.info("准备发送Transaction消息:{}",msg);
-        Message message = MessageBuilder.withPayload(msg).build();
-        TransactionSendResult sendResult = rocketMQTemplate.sendMessageInTransaction(topic, message, tag);
+        Message message = MessageBuilder.withPayload(msg)
+                .setHeader(RocketMQHeaders.TRANSACTION_ID, "TransID").build();
+        TransactionSendResult sendResult = rocketMQTemplate.sendMessageInTransaction(String.format("%s:%s",topic,tag), message,obj);
         log.info("Transaction消息发送状态：{}",sendResult.getLocalTransactionState());
         return sendResult;
     }

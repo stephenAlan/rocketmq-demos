@@ -14,6 +14,7 @@ import java.util.Map;
 /**
  * Created by ssc on 2020-12-28 16:58 .
  * Description: 事务监听器的实现
+ * 让业务类继承此类，并实现doBusiness方法，实现不同的业务
  */
 @Slf4j
 @Component
@@ -22,21 +23,26 @@ public class TransactionListenerImpl implements RocketMQLocalTransactionListener
 
     private static Map<String,RocketMQLocalTransactionState> STATE_MAP = new HashMap<>();
 
-    // 执行本地事务
+    // 执行本地事务，若返回UNKNOW状态，则会执行下边的回查方法
     // 本地的操作需要放在这里,放在其它地方事务会失效
     @Override
-    public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+    public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object obj) {
+        RocketMQLocalTransactionState state;
+        // transId需要在发送消息时手动设置,否则为Null
         String transId = (String) msg.getHeaders().get(RocketMQHeaders.TRANSACTION_ID);
         try {
-            log.info("执行本地操作");
+            log.info("准备操作的本地数据{}" ,obj);
+            log.info("执行本地业务逻辑,transId:{}",transId);
+            // 执行本地操作
             // int i = 1 / 0;
-            STATE_MAP.put(transId,RocketMQLocalTransactionState.COMMIT);
-            return RocketMQLocalTransactionState.COMMIT;
+            log.info("执行本地业务逻辑,COMMIT,transId:{}",transId);
+            state = RocketMQLocalTransactionState.COMMIT;
         } catch (Exception e) {
-            log.info(e.getMessage(),e);
+            log.error("执行本地业务逻辑 ROLLBACK,transId:{},{},{}",transId,e.getMessage(),e);
+            state =  RocketMQLocalTransactionState.ROLLBACK;
         }
-        STATE_MAP.put(transId,RocketMQLocalTransactionState.ROLLBACK);
-        return RocketMQLocalTransactionState.ROLLBACK;
+        STATE_MAP.put(transId,state);
+        return state;
     }
 
     // 回查UNKNOW状态的消息

@@ -34,15 +34,27 @@ public class RocketController {
         return "hello send";
     }
 
+    // 发送延时消息
+    // messageDelayLevel=1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h
+    // 总共18个级别,设为3 表示10s之后发送
+    @RequestMapping("sendDelay")
+    public String sendDelay() {
+        String msg = "hello delay msg";
+        producer.sendDelay("TopicTest","Simple_TAG",msg,3);
+        log.info("发送延时消息：{}",msg);
+        return "hello send delay";
+    }
+
     // 发送事务消息
     @RequestMapping("sendTranc")
     public String sendTranc() {
         String msg = "hello msg";
-        TransactionSendResult sendResult = producer.sendTransaction("TopicTest", "Transaction_TAG", msg);
+        Object obj = "REDAY TO MYSQL DATA";
+        TransactionSendResult sendResult = producer.sendTransaction("TopicTest", "Transaction_TAG", msg, obj);
         // 本地操作放在这里,事务是无效的,要放在TransactionListenerImpl中
         // int i = 1 / 0;
         log.info("发送Transaction消息：{}",msg);
-        return "hello send";
+        return "hello send Transaction";
     }
 
 
