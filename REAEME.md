@@ -27,3 +27,6 @@ rocketmq与springboot整合
     - 通过实现RocketMQLocalTransactionListener中的两个方法来实现事务监控
     - executeLocalTransaction -- 执行本地事务,正常返回COMMIT,异常返回UNKNOW或ROLLBACK
     - checkLocalTransaction   -- 回查本地事务，只有执行本地事务返回UNKNOW状态的才会进行回查
+    - 方法一：把transactionId和RocketMQLocalTransactionState分别作为Map的键值,执行本地事务时插入,回查时,从map中取值即可
+    - 方法二：创建一个transaction_log表,当本地事务执行成功后,插入一条数据,记录transactionId和log,回查时,从表中查询数据即可
+    - 比较喜欢方法一,简单好用

@@ -1,16 +1,16 @@
 package com.stephen.rocketmq.common;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.SendCallback;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.TransactionSendResult;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.apache.rocketmq.spring.support.RocketMQHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 /**
  * Created by ssc on 2020-12-26 21:22 .
@@ -18,10 +18,10 @@ import javax.annotation.Resource;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class Producer {
 
-    @Resource
-    private RocketMQTemplate rocketMQTemplate;
+    private final RocketMQTemplate rocketMQTemplate;
 
     SendCallback sendCallback = new SendCallback() {
 
